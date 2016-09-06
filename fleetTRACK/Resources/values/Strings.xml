@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btnStartLogging">Click here to start logging</string>
+    <string name="btnStopLogging">Click here to stop logging</string>
+    <string name="ApplicationName">fleetTRACK</string>
+</resources>
