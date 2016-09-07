@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -35,7 +36,7 @@ namespace fleetTRACK.Model
 
         public void Stop()
         {
-
+			
         }
 
         public void Resume()
@@ -43,9 +44,36 @@ namespace fleetTRACK.Model
             this.Start();
         }
 
+		/// <summary>
+		/// Create a new csv file for every new trip ended with the long,lat,accuracy for backtracking and add a new entry to the existing logging form.
+		/// </summary>
         public void WriteToLog()
         {
+			//Create a CSV file and write all locations to it (This is for backtracking if average accuracy is too high.)
+			//This happens when the stop journey button is triggered.
+			var backtrackingCSV = Android.OS.Environment.ExternalStorageDirectory + Java.IO.File.Separator + "Trip_" + _carRegistration + "_" + _startDateTime + ".csv";
 
+			using (FileStream fs = new FileStream(backtrackingCSV, FileMode.OpenOrCreate))
+			{
+				foreach (Location location in _journeyLocations)
+				{
+					//Write to new CSV
+					File.WriteAllText(backtrackingCSV, string.Format("{0},{1},{2}," + System.Environment.NewLine, location.Longitude, location.Latitude, location.Accuracy/1000));
+				}
+			}
+
+			//Write to existing CSV file with cartype, car rego, project number, distance travelled etc.
+			var fleetTrackCSV = Android.OS.Environment.ExternalStorageDirectory + Java.IO.File.Separator + "fleet_track.csv";
+
+			using (FileStream fs = new FileStream(fleetTrackCSV, FileMode.Open))
+			{
+				foreach (Location location in _journeyLocations)
+				{
+					//Write to existing CSV
+					//Please refer to google drive for csv format
+					File.WriteAllText(backtrackingCSV, string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}," + System.Environment.NewLine, _carType, _carRegistration, _startDateTime, _endDateTime, CalculateTotalDistanceInKilometres(), _projectNumber, _costCentre, _accoutNumber, _activityId, _locationNumber, _companyNumber, _schoolArea, _driverName, _tosAgreement, _importantNotes));
+				}
+			}
         }
 
         /// <summary>
