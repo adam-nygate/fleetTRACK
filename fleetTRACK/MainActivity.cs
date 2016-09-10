@@ -25,9 +25,15 @@ namespace fleetTRACK
             // Get our button from the layout resource,
             // and attach an event to it
             Button button = FindViewById<Button>(Resource.Id.btnLoggingToggle);
-            Single[] test = new Single[1];
-            Android.Locations.Location.DistanceBetween(-31.7362024, 115.7659186, -31.7524007, 115.7710995, test);
-            button.Click += delegate { button.Text = String.Format("Ditance between: {0}", test[0] / 1000); };
+            
+            button.Click +=  delegate {
+                _currentJourney = new Journey(this, "Toyota", "WM01", "001", "A1", "1023", "1", "12", "ECU", "4", "Adam", "");
+                _currentJourney.Start();
+                button.Text = "Logging for 30 seconds...";
+                System.Threading.Thread.Sleep(30000);
+                _currentJourney.Stop();
+                _currentJourney.WriteLogFiles();
+            };
         }
     }
 }
