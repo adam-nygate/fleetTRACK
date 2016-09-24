@@ -165,6 +165,7 @@ namespace fleetTRACK.Model
             // Subscribe to GPS updates and start the timer that records them
             _locationManager.RequestLocationUpdates(_locationProvider, 0, 0, this);
             _gpsTimer.Enabled = true;
+            _startDateTime = DateTime.Now;
         }
 
         /// <summary>
@@ -175,6 +176,7 @@ namespace fleetTRACK.Model
             // Unsubscribe from the updates and pause the timer
             _locationManager.RemoveUpdates(this);
             _gpsTimer.Enabled = false;
+            _endDateTime = DateTime.Now;
         }
 
         /// <summary>
@@ -192,8 +194,8 @@ namespace fleetTRACK.Model
         /// </summary>
         public void WriteLogFiles()
         {
-            string simpleJourneyDetailsFilename = String.Format("Trip_{0}_{1}_simple.csv", _carRegistration, _startDateTime);
-            string extendedJourneyDetailsFilename = String.Format("Trip_{0}_{1}_extended.csv", _carRegistration, _startDateTime);
+            string simpleJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_simple.csv", _carRegistration, _startDateTime);
+            string extendedJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_extended.csv", _carRegistration, _startDateTime);
 
             // Write to new CSV file with cartype, car rego, project number, distance travelled etc.
             string simpleJourneyDetailsFilePath = String.Format(
@@ -202,15 +204,12 @@ namespace fleetTRACK.Model
                 Java.IO.File.Separator,
                 simpleJourneyDetailsFilename);
 
-            using (FileStream fs = new FileStream(simpleJourneyDetailsFilePath, FileMode.Create))
+            using (var sw = new StreamWriter(simpleJourneyDetailsFilePath))
             {
-                foreach (Location location in _journeyLocations)
-                {
-                    //Write to the new CSV
-                    File.WriteAllText(simpleJourneyDetailsFilePath, string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},", _carType, _carRegistration, _startDateTime, _endDateTime, CalculateTotalDistanceInKilometres(), CalculateTotalAveragedAccuracy(), _projectNumber, _costCentre, _accoutNumber, _activityId, _locationNumber, _companyNumber, _schoolArea, _driverName, _tosAgreement, _importantNotes, System.Environment.NewLine));
-                }
+                // Write to the CSV
+                sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},", _carType, _carRegistration, _startDateTime, _endDateTime, CalculateTotalDistanceInKilometres(), CalculateTotalAveragedAccuracy(), _projectNumber, _costCentre, _accoutNumber, _activityId, _locationNumber, _companyNumber, _schoolArea, _driverName, _tosAgreement, _importantNotes));
             }
-
+            
             // Create a CSV file and write all locations to it (This is for auditing if average accuracy is too high).
             string extendedJourneyDetailsFilePath = String.Format(
                 "{0}{1}{2}",
@@ -218,12 +217,13 @@ namespace fleetTRACK.Model
                 Java.IO.File.Separator,
                 extendedJourneyDetailsFilename);
 
-            using (FileStream fs = new FileStream(extendedJourneyDetailsFilePath, FileMode.Create))
+            using (var sw = new StreamWriter(extendedJourneyDetailsFilePath))
             {
+                sw.WriteLine("Longitude,Latitude,Accuracy,");
                 foreach (Location location in _journeyLocations)
                 {
                     // Write to the CSV
-                    File.WriteAllText(extendedJourneyDetailsFilePath, string.Format("{0},{1},{2},{3},", location.Longitude, location.Latitude, ConvertMetresToKilometres(location.Accuracy), System.Environment.NewLine));
+                    sw.WriteLine(string.Format("{0},{1},{2},", location.Longitude, location.Latitude, ConvertMetresToKilometres(location.Accuracy)));
                 }
             }
         }
