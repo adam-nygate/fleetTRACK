@@ -24,15 +24,28 @@ namespace fleetTRACK
 
             // Get our button from the layout resource,
             // and attach an event to it
+            bool toggled = false;
             Button button = FindViewById<Button>(Resource.Id.btnLoggingToggle);
-            
+            // note: toggled is temporary until GUI is implemented
             button.Click +=  delegate {
-                _currentJourney = new Journey(this, "Toyota", "WM01", "001", "A1", "1023", "1", "12", "ECU", "4", "Adam", "");
-                _currentJourney.Start();
-                button.Text = "Logging for 30 seconds...";
-                System.Threading.Thread.Sleep(30000);
-                _currentJourney.Stop();
-                _currentJourney.WriteLogFiles();
+                if (toggled == false)
+                {
+                    button.Text = "Starting...";
+                    _currentJourney = new Journey(this, "Toyota", "WM01", "001", "A1", "1023", "1", "12", "ECU", "4", "Adam", "");
+                    button.Text = "Starting to log...";
+                    _currentJourney.Start();
+                    button.Text = "Stop";
+                    toggled = true;
+                }
+                else
+                {
+                    button.Text = "Stopping...";
+                    _currentJourney.Stop();
+                    button.Text = "Writing to storage...";
+                    _currentJourney.WriteLogFiles();
+                    button.Text = "Start";
+                    toggled = false;
+                }
             };
         }
     }
