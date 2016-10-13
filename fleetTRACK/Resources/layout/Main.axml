@@ -44,10 +44,10 @@
         android:id="@+id/btnStartLogging"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/btnStartLogging" />
-    <Button 
+        android:text="Click here to start logging" />
+    <Button
         android:id="@+id/btnAdmin"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Admin"/>
+        android:text="Admin" />
 </LinearLayout>

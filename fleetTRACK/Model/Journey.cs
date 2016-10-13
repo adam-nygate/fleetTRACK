@@ -2,23 +2,156 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Timers;
 
 using Android.App;
 using Android.Content;
 using Android.Locations;
-using Android.Net;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 
 
 namespace fleetTRACK.Model
 {
     class Journey : Activity, ILocationListener
     {
+        #region Public methods
+        /// <summary>
+        /// Constructor for the journey class
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="carType"></param>
+        /// <param name="carRegistration"></param>
+        /// <param name="projectNumber"></param>
+        /// <param name="costCentre"></param>
+        /// <param name="accountNumber"></param>
+        /// <param name="activityId"></param>
+        /// <param name="locationNumber"></param>
+        /// <param name="companyNumber"></param>
+        /// <param name="schoolArea"></param>
+        /// <param name="driverName"></param>
+        /// <param name="importantNotes"></param>
+        public Journey(Context context, string carType, string carRegistration, string projectNumber,
+            string costCentre, string accountNumber, string activityId, string locationNumber,
+            string companyNumber, string schoolArea, string driverName, string importantNotes)
+        {
+            // Define journey details
+            this._carType = carType;
+            this._carRegistration = carRegistration;
+            this._projectNumber = projectNumber;
+            this._costCentre = costCentre;
+            this._accoutNumber = accountNumber;
+            this._activityId = activityId;
+            this._locationNumber = locationNumber;
+            this._companyNumber = companyNumber;
+            this._schoolArea = schoolArea;
+            this._driverName = driverName;
+            this._importantNotes = importantNotes;
+
+            // Instantiate the location manager and define our criteria for GPS updates
+            _locationManager = (LocationManager)context.GetSystemService(Context.LocationService);
+            Criteria criteriaForLocationService = new Criteria { Accuracy = Accuracy.Fine };
+            IList<string> acceptableLocationProviders = _locationManager.GetProviders(criteriaForLocationService, true);
+
+            // Store the acceptable provider
+            if (acceptableLocationProviders.Any())
+                _locationProvider = acceptableLocationProviders.First();
+            else
+                throw new ApplicationException("No acceptable gps location providers found.");
+
+            // Create the timer and register for callbacks
+            _gpsTimer = new Timer(5000);
+            _gpsTimer.AutoReset = true;
+            _gpsTimer.Elapsed += RecordGpsLocation;
+        }
+
+        /// <summary>
+        /// Starts the journey logging process
+        /// </summary>
+        public void Start()
+        {
+            // Subscribe to GPS updates and start the timer that records them
+            _locationManager.RequestLocationUpdates(_locationProvider, 0, 0, this);
+            _startDateTime = DateTime.Now;
+            _gpsTimer.Enabled = true;
+        }
+
+        /// <summary>
+        /// Stops the journey logging process
+        /// </summary>
+        public void Stop()
+        {
+            // Unsubscribe from the updates and pause the timer
+            _locationManager.RemoveUpdates(this);
+            _gpsTimer.Enabled = false;
+            _endDateTime = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Resumes the journey logging process (is an alias of Start())
+        /// </summary>
+        public void Resume()
+        {
+            // Alias for Start()
+            this.Start();
+        }
+
+        /// <summary>
+        /// Creates new csv files for the current journey.
+        /// One file containing simple journey details and one file containing the extended detail set for auditing purposes.
+        /// </summary>
+        public void WriteLogFiles()
+        {
+            string simpleJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_simple.csv", _carRegistration, _startDateTime);
+            string extendedJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_extended.csv", _carRegistration, _startDateTime);
+
+            // Write to new CSV file with cartype, car rego, project number, distance travelled etc.
+            string simpleJourneyDetailsFilePath = String.Format(
+                "{0}{1}{2}",
+                Android.OS.Environment.ExternalStorageDirectory,
+                Java.IO.File.Separator,
+                simpleJourneyDetailsFilename);
+
+            using (var sw = new StreamWriter(simpleJourneyDetailsFilePath))
+            {
+                // Write to the CSV
+                sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},", _carType, _carRegistration, _startDateTime, _endDateTime, CalculateTotalDistanceInKilometres(), CalculateTotalAveragedAccuracy(), _projectNumber, _costCentre, _accoutNumber, _activityId, _locationNumber, _companyNumber, _schoolArea, _driverName, _importantNotes));
+            }
+
+            // Create a CSV file and write all locations to it (This is for auditing if average accuracy is too high).
+            string extendedJourneyDetailsFilePath = String.Format(
+                "{0}{1}{2}",
+                Android.OS.Environment.ExternalStorageDirectory,
+                Java.IO.File.Separator,
+                extendedJourneyDetailsFilename);
+
+            using (var sw = new StreamWriter(extendedJourneyDetailsFilePath))
+            {
+                sw.WriteLine("Longitude,Latitude,Accuracy,");
+                foreach (Location location in _journeyLocations)
+                {
+                    // Write to the CSV
+                    sw.WriteLine(string.Format("{0},{1},{2},", location.Longitude, location.Latitude, ConvertMetresToKilometres(location.Accuracy)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Callback method that is invoked by the GPS provider when it has detected a change of location
+        /// </summary>
+        /// <param name="location"></param>
+        public void OnLocationChanged(Location location)
+        {
+            _currentLocation = location;
+        }
+
+        // Yeah... let's not talk about these...
+        public void OnProviderDisabled(string provider) { }
+
+        public void OnProviderEnabled(string provider) { }
+
+        public void OnStatusChanged(string provider, Availability status, Bundle extras) { }
+        #endregion
+
         #region Private properties
         // GPS-specific properties
         private Location _currentLocation;
@@ -31,7 +164,6 @@ namespace fleetTRACK.Model
         private string _carType, _carRegistration, _projectNumber, _costCentre, _accoutNumber, _activityId, 
             _locationNumber, _companyNumber, _schoolArea, _driverName, _importantNotes;
         private DateTime _startDateTime, _endDateTime;
-        private Boolean _tosAgreement;
         #endregion
 
         #region Private methods
@@ -106,204 +238,6 @@ namespace fleetTRACK.Model
         {
             _journeyLocations.Add(_currentLocation);
         }
-        #endregion
-
-        #region Public methods
-        /// <summary>
-        /// Constructor for the journey class
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="carType"></param>
-        /// <param name="carRegistration"></param>
-        /// <param name="projectNumber"></param>
-        /// <param name="costCentre"></param>
-        /// <param name="accountNumber"></param>
-        /// <param name="activityId"></param>
-        /// <param name="locationNumber"></param>
-        /// <param name="companyNumber"></param>
-        /// <param name="schoolArea"></param>
-        /// <param name="driverName"></param>
-        /// <param name="importantNotes"></param>
-        public Journey(Context context, string carType, string carRegistration, string projectNumber, 
-            string costCentre, string accountNumber, string activityId, string locationNumber,
-            string companyNumber, string schoolArea, string driverName, string importantNotes)
-        {
-            // Define journey details
-            this._carType = carType;
-            this._carRegistration = carRegistration;
-            this._projectNumber = projectNumber;
-            this._costCentre = costCentre;
-            this._accoutNumber = accountNumber;
-            this._activityId = activityId;
-            this._locationNumber = locationNumber;
-            this._companyNumber = companyNumber;
-            this._schoolArea = schoolArea;
-            this._driverName = driverName;
-            this._importantNotes = importantNotes;
-
-            // Instantiate the location manager and define our criteria for GPS updates
-            _locationManager = (LocationManager)context.GetSystemService(Context.LocationService);
-            Criteria criteriaForLocationService = new Criteria { Accuracy = Accuracy.Fine };
-            IList<string> acceptableLocationProviders = _locationManager.GetProviders(criteriaForLocationService, true);
-
-            // Store the acceptable provider
-            if (acceptableLocationProviders.Any())
-                _locationProvider = acceptableLocationProviders.First();
-            else
-                throw new ApplicationException("No acceptable gps location providers found.");
-
-            // Create the time and register for callbacks
-            _gpsTimer = new Timer(5000);
-            _gpsTimer.AutoReset = true;
-            _gpsTimer.Elapsed += RecordGpsLocation;
-        }
-
-        /// <summary>
-        /// Starts the journey logging process
-        /// </summary>
-        public void Start()
-        {
-            // Subscribe to GPS updates and start the timer that records them
-            _locationManager.RequestLocationUpdates(_locationProvider, 0, 0, this);
-            _gpsTimer.Enabled = true;
-            _startDateTime = DateTime.Now;
-        }
-
-        /// <summary>
-        /// Stops the journey logging process
-        /// </summary>
-        public void Stop()
-        {
-            // Unsubscribe from the updates and pause the timer
-            _locationManager.RemoveUpdates(this);
-            _gpsTimer.Enabled = false;
-            _endDateTime = DateTime.Now;
-        }
-
-        /// <summary>
-        /// Resumes the journey logging process (is an alias of Start())
-        /// </summary>
-        public void Resume()
-        {
-            // Alias for Start()
-            this.Start();
-        }
-
-        /// <summary>
-        /// Creates new csv files for the current journey.
-        /// One file containing simple journey details and one file containing the extended detail set for auditing purposes.
-        /// </summary>
-        public void WriteLogFiles()
-        {
-            string simpleJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_simple.csv", _carRegistration, _startDateTime);
-            string extendedJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_extended.csv", _carRegistration, _startDateTime);
-
-            // Write to new CSV file with cartype, car rego, project number, distance travelled etc.
-            string simpleJourneyDetailsFilePath = String.Format(
-                "{0}{1}{2}",
-                Android.OS.Environment.ExternalStorageDirectory,
-                Java.IO.File.Separator,
-                simpleJourneyDetailsFilename);
-
-            using (var sw = new StreamWriter(simpleJourneyDetailsFilePath))
-            {
-                // Write to the CSV
-                sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},", _carType, _carRegistration, _startDateTime, _endDateTime, CalculateTotalDistanceInKilometres(), CalculateTotalAveragedAccuracy(), _projectNumber, _costCentre, _accoutNumber, _activityId, _locationNumber, _companyNumber, _schoolArea, _driverName, _tosAgreement, _importantNotes));
-            }
-            
-            // Create a CSV file and write all locations to it (This is for auditing if average accuracy is too high).
-            string extendedJourneyDetailsFilePath = String.Format(
-                "{0}{1}{2}",
-                Android.OS.Environment.ExternalStorageDirectory,
-                Java.IO.File.Separator,
-                extendedJourneyDetailsFilename);
-
-            using (var sw = new StreamWriter(extendedJourneyDetailsFilePath))
-            {
-                sw.WriteLine("Longitude,Latitude,Accuracy,");
-                foreach (Location location in _journeyLocations)
-                {
-                    // Write to the CSV
-                    sw.WriteLine(string.Format("{0},{1},{2},", location.Longitude, location.Latitude, ConvertMetresToKilometres(location.Accuracy)));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Callback method that is invoked by the GPS provider when it has detected a change of location
-        /// </summary>
-        /// <param name="location"></param>
-        public void OnLocationChanged(Location location)
-        {
-            _currentLocation = location;
-        }
-
-		/// <summary>
-		/// Detects the network.
-		/// </summary>
-		/// <returns><c>true</c>, if network was detected, <c>false</c> otherwise.</returns>
-		public Boolean detectNetwork()
-		{
-			ConnectivityManager connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
-
-			NetworkInfo wifiInfo = connectivityManager.GetNetworkInfo(ConnectivityType.Wifi);
-
-			if (wifiInfo.IsConnected)
-			{
-				return true;
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// Archives the csv.
-		/// </summary>
-		/// <returns><c>true</c>, if csv was archived, <c>false</c> otherwise.</returns>
-		/// <param name="carRego">Car rego.</param>
-		/// <param name="startDateTime">Start date time.</param>
-		public Boolean archiveCSV(String carRego, String startDateTime)
-		{
-			string fileNameSimple = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_simple.csv", carRego, startDateTime);
-			string fileNameExtended = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_extended.csv", carRego, startDateTime);
-
-			string simpleJourneyDetailsFilePath = String.Format(
-				"{0}{1}{2}",
-				Android.OS.Environment.ExternalStorageDirectory,
-				Java.IO.File.Separator,
-				fileNameSimple);
-
-			string extendedJourneyDetailsFilePath = String.Format(
-				"{0}{1}{2}",
-				Android.OS.Environment.ExternalStorageDirectory,
-				Java.IO.File.Separator,
-				fileNameExtended);
-
-			string archivingDest = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/archived/";
-
-
-			if (File.Exists(simpleJourneyDetailsFilePath))
-			{
-				File.Move(simpleJourneyDetailsFilePath, archivingDest + fileNameSimple);
-				return true;
-			}
-			else if (File.Exists(extendedJourneyDetailsFilePath))
-			{
-				File.Move(extendedJourneyDetailsFilePath, archivingDest + fileNameExtended);
-				return true;
-			}
-			else 
-			{
-				return false;
-			}
-
-		}
-
-        // Yeah... let's not talk about these...
-        public void OnProviderDisabled(string provider) { }
-
-        public void OnProviderEnabled(string provider) { }
-
-        public void OnStatusChanged(string provider, Availability status, Bundle extras) { }
-        #endregion
+        #endregion 
     }
 }
