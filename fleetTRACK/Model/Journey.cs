@@ -8,6 +8,7 @@ using System.Timers;
 using Android.App;
 using Android.Content;
 using Android.Locations;
+using Android.Net;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
@@ -236,6 +237,66 @@ namespace fleetTRACK.Model
         {
             _currentLocation = location;
         }
+
+		/// <summary>
+		/// Detects the network.
+		/// </summary>
+		/// <returns><c>true</c>, if network was detected, <c>false</c> otherwise.</returns>
+		public Boolean detectNetwork()
+		{
+			ConnectivityManager connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
+
+			NetworkInfo wifiInfo = connectivityManager.GetNetworkInfo(ConnectivityType.Wifi);
+
+			if (wifiInfo.IsConnected)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Archives the csv.
+		/// </summary>
+		/// <returns><c>true</c>, if csv was archived, <c>false</c> otherwise.</returns>
+		/// <param name="carRego">Car rego.</param>
+		/// <param name="startDateTime">Start date time.</param>
+		public Boolean archiveCSV(String carRego, String startDateTime)
+		{
+			string fileNameSimple = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_simple.csv", carRego, startDateTime);
+			string fileNameExtended = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_extended.csv", carRego, startDateTime);
+
+			string simpleJourneyDetailsFilePath = String.Format(
+				"{0}{1}{2}",
+				Android.OS.Environment.ExternalStorageDirectory,
+				Java.IO.File.Separator,
+				fileNameSimple);
+
+			string extendedJourneyDetailsFilePath = String.Format(
+				"{0}{1}{2}",
+				Android.OS.Environment.ExternalStorageDirectory,
+				Java.IO.File.Separator,
+				fileNameExtended);
+
+			string archivingDest = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/archived/";
+
+
+			if (File.Exists(simpleJourneyDetailsFilePath))
+			{
+				File.Move(simpleJourneyDetailsFilePath, archivingDest + fileNameSimple);
+				return true;
+			}
+			else if (File.Exists(extendedJourneyDetailsFilePath))
+			{
+				File.Move(extendedJourneyDetailsFilePath, archivingDest + fileNameExtended);
+				return true;
+			}
+			else 
+			{
+				return false;
+			}
+
+		}
 
         // Yeah... let's not talk about these...
         public void OnProviderDisabled(string provider) { }
