@@ -31,10 +31,10 @@ namespace fleetTRACK.Model
 
 
             string logPath = String.Format(
-                "{0}{1}",
+                "{0}{1}{2}{1}",
                 Android.OS.Environment.ExternalStorageDirectory,
-                Java.IO.File.Separator
-                );
+                Java.IO.File.Separator,
+                _context.Resources.GetString(Resource.String.logDirectory));
 
             foreach (string filePath in Directory.GetFiles(logPath, "*_simple.csv"))
             {
