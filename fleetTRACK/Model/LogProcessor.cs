@@ -165,14 +165,15 @@ namespace fleetTRACK.Model
 
             if (File.Exists(originalFilePath))
             {
-                try
-                {
-                    File.Move(originalFilePath, logArchivePath + Path.GetFileName(originalFilePath));
-                }
-                catch (Exception ex)
-                {
-                    throw new UnauthorizedAccessException("Unable to move log file to archive directory", ex);
-                }
+                //try
+                //{
+                    File.Copy(originalFilePath, logArchivePath + Path.GetFileName(originalFilePath));
+					File.Delete(originalFilePath);
+                //}
+                //catch (Exception ex)
+                //{
+                //    throw new UnauthorizedAccessException("Unable to move log file to archive directory", ex);
+                //}
             }
         }
         #endregion
