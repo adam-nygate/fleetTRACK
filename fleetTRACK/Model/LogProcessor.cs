@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using MailKit.Net.Smtp;
 using MimeKit;
 
@@ -38,11 +39,12 @@ namespace fleetTRACK.Model
 
             foreach (string filePath in Directory.GetFiles(logPath, "*_simple.csv"))
             {
-                string rawJourneyName = filePath.Split(new string[] { "_simple.csv" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                string rawJourneyPath = filePath.Split(new string[] { "_simple.csv" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                string rawJourneyName = rawJourneyPath.Split(new string[] { Java.IO.File.Separator }, StringSplitOptions.RemoveEmptyEntries).Last();
                 string simpleJourneyDetailsFilePath = filePath;
                 string extendedJourneyDetailsFilePath = String.Format(
                     "{0}_extended.csv",
-                    rawJourneyName);
+                    rawJourneyPath);
 
                 //Send email
                 SendEmail(rawJourneyName, simpleJourneyDetailsFilePath, extendedJourneyDetailsFilePath);
