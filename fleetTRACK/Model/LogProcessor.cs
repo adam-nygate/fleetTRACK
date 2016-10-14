@@ -124,12 +124,12 @@ namespace fleetTRACK.Model
 
             using (SmtpClient client = new SmtpClient())
             {
-                client.Connect("smtp.friends.com", 587, false);
+                client.Connect(settings.GetString("SmtpServer", ""), 587, false);
 
                 // Since we don't have an OAuth2 token, disable the XOAUTH2 authentication mechanism.
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
                 
-                client.Authenticate("joey", "password");
+                client.Authenticate(settings.GetString("SmtpUsername", ""), settings.GetString("SmtpPassword", ""));
 
                 client.Send(message);
                 client.Disconnect(true);

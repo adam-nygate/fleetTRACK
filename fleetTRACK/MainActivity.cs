@@ -18,7 +18,6 @@ namespace fleetTRACK
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
-
             // Go to the main menu of the app
             MainMenu();
         }
@@ -41,14 +40,14 @@ namespace fleetTRACK
             // When button is clicked
             button.Click += delegate {
                 // Get shared preferences
-                ISharedPreferences Settings = GetSharedPreferences("settings", 0);
+                ISharedPreferences settings = GetSharedPreferences("settings", 0);
                 // Stores the values for each key
-                string Vehicle = Settings.GetString("Vehicle", "");
-                string Rego = Settings.GetString("Rego", "");
-                string AccountNumber = Settings.GetString("Account", "");
-                string Activity = Settings.GetString("Activity", "");
-                string Location = Settings.GetString("Location", "");
-                string Company = Settings.GetString("Company", "");
+                string Vehicle = settings.GetString("Vehicle", "");
+                string Rego = settings.GetString("Rego", "");
+                string AccountNumber = settings.GetString("Account", "");
+                string Activity = settings.GetString("Activity", "");
+                string Location = settings.GetString("Location", "");
+                string Company = settings.GetString("Company", "");
 
                 // Start the journey
                 _currentJourney = new Journey(this, Vehicle, Rego, entryProject.Text, entryCostCentre.Text, AccountNumber, Activity, Location, Company, entrySchoolArea.Text, entryDriverName.Text, "");
@@ -114,9 +113,8 @@ namespace fleetTRACK
             // Set our view to the "settings" layout resource
             SetContentView(Resource.Layout.Settings);
             // Get shared preferences
-            ISharedPreferences Settings = GetSharedPreferences("settings", 0);
+            ISharedPreferences settings = GetSharedPreferences("settings", 0);
             // Get entry box for each field
-            EditText EmailAddress = FindViewById<EditText>(Resource.Id.entryEmailAddress);
             EditText AdminCode = FindViewById<EditText>(Resource.Id.entryAdminCode);
             EditText Vehicle = FindViewById<EditText>(Resource.Id.entryVehicle);
             EditText Rego = FindViewById<EditText>(Resource.Id.entryRego);
@@ -124,25 +122,24 @@ namespace fleetTRACK
             EditText Activity = FindViewById<EditText>(Resource.Id.entryActivity);
             EditText Location = FindViewById<EditText>(Resource.Id.entryLocation);
             EditText Company = FindViewById<EditText>(Resource.Id.entryCompany);
-            // Get save and cancel buttons
+            // Get save, cancel and email buttons
             Button Save = FindViewById<Button>(Resource.Id.btnSaveChanges);
             Button Cancel = FindViewById<Button>(Resource.Id.btnCancelChanges);
+            Button Email = FindViewById<Button>(Resource.Id.btnEmailMenu);
             // Set entry box values to ones from shared preferences
-            EmailAddress.Text = Settings.GetString("EmailAddress", "");
-            AdminCode.Text = Settings.GetString("AdminCode", "");
-            Vehicle.Text = Settings.GetString("Vehicle", "");
-            Rego.Text = Settings.GetString("Rego", "");
-            Account.Text = Settings.GetString("Account", "");
-            Activity.Text = Settings.GetString("Activity", "");
-            Location.Text = Settings.GetString("Location", "");
-            Company.Text = Settings.GetString("Company", "");
+            AdminCode.Text = settings.GetString("AdminCode", "");
+            Vehicle.Text = settings.GetString("Vehicle", "");
+            Rego.Text = settings.GetString("Rego", "");
+            Account.Text = settings.GetString("Account", "");
+            Activity.Text = settings.GetString("Activity", "");
+            Location.Text = settings.GetString("Location", "");
+            Company.Text = settings.GetString("Company", "");
 
             Save.Click += delegate
             {
                 // Get shared preferences
-                ISharedPreferencesEditor SettingsEditor = Settings.Edit();
+                ISharedPreferencesEditor SettingsEditor = settings.Edit();
                 // Save new values to shared preferences
-                SettingsEditor.PutString("EmailAddress", EmailAddress.Text);
                 SettingsEditor.PutString("AdminCode", AdminCode.Text);
                 SettingsEditor.PutString("Vehicle", Vehicle.Text);
                 SettingsEditor.PutString("Rego", Rego.Text);
@@ -160,6 +157,60 @@ namespace fleetTRACK
             {
                 // Go to the main menu of the app
                 MainMenu();
+            };
+
+            Email.Click += delegate
+            {
+                EmailMenu();
+            };
+        }
+
+        private void EmailMenu()
+        {
+            // Set our view to the "Email" layout
+            SetContentView(Resource.Layout.Email);
+            // Get shared preferences
+            ISharedPreferences settings = GetSharedPreferences("settings", 0);
+            // Get entry box for each field
+            EditText EmailAddress = FindViewById<EditText>(Resource.Id.entryEmailAddress);
+            EditText SmtpServer = FindViewById<EditText>(Resource.Id.entrySmtpServer);
+            EditText SmtpUsername = FindViewById<EditText>(Resource.Id.entrySmtpUsername);
+            EditText SmtpPassword = FindViewById<EditText>(Resource.Id.entrySmtpPassword);
+            // Get save, cancel and send buttons
+            Button Save = FindViewById<Button>(Resource.Id.btnSaveChanges);
+            Button Cancel = FindViewById<Button>(Resource.Id.btnCancelChanges);
+            Button Send = FindViewById<Button>(Resource.Id.btnSendEmail);
+            // Set entry box values to ones from shared preferences
+            EmailAddress.Text = settings.GetString("EmailAddress", "");
+            SmtpServer.Text = settings.GetString("SmtpServer", "");
+            SmtpUsername.Text = settings.GetString("SmtpUsername", "");
+            SmtpPassword.Text = settings.GetString("SmtpPassword", "");
+
+            Save.Click += delegate
+            {
+                // Get shared preferences
+                ISharedPreferencesEditor SettingsEditor = settings.Edit();
+                // Save new values to shared preferences
+                SettingsEditor.PutString("EmailAddress", EmailAddress.Text);
+                SettingsEditor.PutString("SmtpServer", SmtpServer.Text);
+                SettingsEditor.PutString("SmtpUsername", SmtpUsername.Text);
+                SettingsEditor.PutString("SmtpPassword", SmtpPassword.Text);
+                // Commit changes
+                SettingsEditor.Commit();
+            };
+
+            Cancel.Click += delegate
+            {
+                // Go to the settings menu in the app
+                SettingsMenu();
+            };
+
+            Send.Click += delegate
+            {
+                // Process the log files for emailing
+                LogProcessor lp = new LogProcessor(this);
+                lp.ProcessLogFiles();
+                
             };
         }
     }
