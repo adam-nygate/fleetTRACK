@@ -109,6 +109,18 @@ namespace fleetTRACK.Model
                 Java.IO.File.Separator,
                 _context.Resources.GetString(Resource.String.logDirectory));
 
+            if (!Directory.Exists(rootLogDirectory))
+            {
+                try
+                {
+                    Directory.CreateDirectory(rootLogDirectory);
+                }
+                catch (Exception ex)
+                {
+                    throw new UnauthorizedAccessException("Unable to create log directory", ex);
+                }
+            }
+
             string simpleJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_simple.csv", _carRegistration, _startDateTime);
             string extendedJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_extended.csv", _carRegistration, _startDateTime);
 
