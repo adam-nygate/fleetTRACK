@@ -172,7 +172,8 @@ namespace fleetTRACK
             // Get shared preferences
             ISharedPreferences settings = GetSharedPreferences("settings", 0);
             // Get entry box for each field
-            EditText EmailAddress = FindViewById<EditText>(Resource.Id.entryEmailAddress);
+            EditText SendAddress = FindViewById<EditText>(Resource.Id.entrySendAddress);
+            EditText SourceAddress = FindViewById<EditText>(Resource.Id.entrySourceAddress);
             EditText SmtpServer = FindViewById<EditText>(Resource.Id.entrySmtpServer);
             EditText SmtpUsername = FindViewById<EditText>(Resource.Id.entrySmtpUsername);
             EditText SmtpPassword = FindViewById<EditText>(Resource.Id.entrySmtpPassword);
@@ -181,7 +182,8 @@ namespace fleetTRACK
             Button Cancel = FindViewById<Button>(Resource.Id.btnCancelChanges);
             Button Send = FindViewById<Button>(Resource.Id.btnSendEmail);
             // Set entry box values to ones from shared preferences
-            EmailAddress.Text = settings.GetString("EmailAddress", "");
+            SendAddress.Text = settings.GetString("SendAddress", "");
+            SourceAddress.Text = settings.GetString("SourceAddress", "");
             SmtpServer.Text = settings.GetString("SmtpServer", "");
             SmtpUsername.Text = settings.GetString("SmtpUsername", "");
             SmtpPassword.Text = settings.GetString("SmtpPassword", "");
@@ -191,7 +193,8 @@ namespace fleetTRACK
                 // Get shared preferences
                 ISharedPreferencesEditor SettingsEditor = settings.Edit();
                 // Save new values to shared preferences
-                SettingsEditor.PutString("EmailAddress", EmailAddress.Text);
+                SettingsEditor.PutString("SendAddress", SendAddress.Text);
+                SettingsEditor.PutString("SourceAddress", SourceAddress.Text);
                 SettingsEditor.PutString("SmtpServer", SmtpServer.Text);
                 SettingsEditor.PutString("SmtpUsername", SmtpUsername.Text);
                 SettingsEditor.PutString("SmtpPassword", SmtpPassword.Text);

@@ -26,14 +26,15 @@ namespace fleetTRACK.Model
         /// </summary>
         public void ProcessLogFiles()
         {
-            if (!IsNetworkConnectionValid())
-                throw new ApplicationException("No valid network connection detected.");
+            //if (!IsNetworkConnectionValid())
+            //    throw new ApplicationException("No valid network connection detected.");
+
 
             string logPath = String.Format(
-                "{0}{1}{2}",
+                "{0}{1}",
                 Android.OS.Environment.ExternalStorageDirectory,
-                Java.IO.File.Separator,
-                _context.Resources.GetString(Resource.String.logDirectory));
+                Java.IO.File.Separator
+                );
 
             foreach (string filePath in Directory.GetFiles(logPath, "*_simple.csv"))
             {
@@ -83,11 +84,11 @@ namespace fleetTRACK.Model
         private void SendEmail(string journeyName, string simpleJourneyDetailsFilePath, string extendedJourneyDetailsFilePath)
         {
             // Get shared preferences
-            ISharedPreferences settings = GetSharedPreferences("settings", 0);
+            ISharedPreferences settings = _context.GetSharedPreferences("settings", 0);
 
             MimeMessage message = new MimeMessage();
-            message.From.Add(new MailboxAddress("fleetTRACK", "fleetTRACK@ecu.edu.au"));
-            message.To.Add(new MailboxAddress(settings.GetString("EmailAddress", ""), settings.GetString("EmailAddress", "")));
+            message.From.Add(new MailboxAddress("fleetTRACK", settings.GetString("SourceAddress", "")));
+            message.To.Add(new MailboxAddress(settings.GetString("SendAddress", ""), settings.GetString("SendAddress", "")));
             message.Subject = journeyName;
 
             TextPart body = new TextPart("plain")
