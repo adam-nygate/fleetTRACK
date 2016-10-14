@@ -47,8 +47,10 @@ namespace fleetTRACK.Model
             this._driverName = driverName;
             this._importantNotes = importantNotes;
 
+            this._context = context;
+
             // Instantiate the location manager and define our criteria for GPS updates
-            _locationManager = (LocationManager)context.GetSystemService(Context.LocationService);
+            _locationManager = (LocationManager)this._context.GetSystemService(Context.LocationService);
             Criteria criteriaForLocationService = new Criteria { Accuracy = Accuracy.Fine };
             IList<string> acceptableLocationProviders = _locationManager.GetProviders(criteriaForLocationService, true);
 
@@ -101,14 +103,19 @@ namespace fleetTRACK.Model
         /// </summary>
         public void WriteLogFiles()
         {
+            string rootLogDirectory = String.Format(
+                "{0}{1}{2}{1}",
+                Android.OS.Environment.ExternalStorageDirectory,
+                Java.IO.File.Separator,
+                _context.Resources.GetString(Resource.String.logDirectory));
+
             string simpleJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_simple.csv", _carRegistration, _startDateTime);
             string extendedJourneyDetailsFilename = String.Format("Trip_{0}_{1:yy-MM-dd_H-mm}_extended.csv", _carRegistration, _startDateTime);
 
             // Write to new CSV file with cartype, car rego, project number, distance travelled etc.
             string simpleJourneyDetailsFilePath = String.Format(
-                "{0}{1}{2}",
-                Android.OS.Environment.ExternalStorageDirectory,
-                Java.IO.File.Separator,
+                "{0}{1}",
+                rootLogDirectory,
                 simpleJourneyDetailsFilename);
 
             using (var sw = new StreamWriter(simpleJourneyDetailsFilePath))
@@ -119,9 +126,8 @@ namespace fleetTRACK.Model
 
             // Create a CSV file and write all locations to it (This is for auditing if average accuracy is too high).
             string extendedJourneyDetailsFilePath = String.Format(
-                "{0}{1}{2}",
-                Android.OS.Environment.ExternalStorageDirectory,
-                Java.IO.File.Separator,
+                "{0}{1}",
+                rootLogDirectory,
                 extendedJourneyDetailsFilename);
 
             using (var sw = new StreamWriter(extendedJourneyDetailsFilePath))
@@ -153,6 +159,9 @@ namespace fleetTRACK.Model
         #endregion
 
         #region Private properties
+        // Misc properties
+        Context _context;
+
         // GPS-specific properties
         private Location _currentLocation;
         private LocationManager _locationManager;
