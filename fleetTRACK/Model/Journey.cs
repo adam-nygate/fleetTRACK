@@ -98,6 +98,15 @@ namespace fleetTRACK.Model
         }
 
         /// <summary>
+        /// Sets important notes for the journey
+        /// </summary>
+        /// <param name="ImportantNotes"></param>
+        public void SetImportantNotes(string ImportantNotes)
+        {
+            _importantNotes = ImportantNotes;
+        }
+
+        /// <summary>
         /// Creates new csv files for the current journey.
         /// One file containing simple journey details and one file containing the extended detail set for auditing purposes.
         /// </summary>
@@ -132,8 +141,11 @@ namespace fleetTRACK.Model
 
             using (var sw = new StreamWriter(simpleJourneyDetailsFilePath))
             {
+                // insert headings into CSV
+                sw.WriteLine("Vehicle,Registration,Start Time, End Time, Distance (km),GPS Accuracy,Project,Cost Centre,Account,Activity,Location,Company,School Area,Driver,Important Notes");
+                
                 // Write to the CSV
-                sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},", _carType, _carRegistration, _startDateTime, _endDateTime, CalculateTotalDistanceInKilometres(), CalculateTotalAveragedAccuracy(), _projectNumber, _costCentre, _accoutNumber, _activityId, _locationNumber, _companyNumber, _schoolArea, _driverName, _importantNotes));
+                sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14}", _carType, _carRegistration, _startDateTime, _endDateTime, CalculateTotalDistanceInKilometres(), CalculateTotalAveragedAccuracy(), _projectNumber, _costCentre, _accoutNumber, _activityId, _locationNumber, _companyNumber, _schoolArea, _driverName, _importantNotes));
             }
 
             // Create a CSV file and write all locations to it (This is for auditing if average accuracy is too high).
@@ -144,11 +156,11 @@ namespace fleetTRACK.Model
 
             using (var sw = new StreamWriter(extendedJourneyDetailsFilePath))
             {
-                sw.WriteLine("Longitude,Latitude,Accuracy,");
+                sw.WriteLine("Longitude,Latitude,Accuracy");
                 foreach (Location location in _journeyLocations)
                 {
                     // Write to the CSV
-                    sw.WriteLine(string.Format("{0},{1},{2},", location.Longitude, location.Latitude, ConvertMetresToKilometres(location.Accuracy)));
+                    sw.WriteLine(string.Format("{0},{1},{2}", location.Longitude, location.Latitude, ConvertMetresToKilometres(location.Accuracy)));
                 }
             }
         }

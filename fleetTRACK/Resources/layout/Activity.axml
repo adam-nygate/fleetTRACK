@@ -17,6 +17,16 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10.0dp" />
+    <TextView
+        android:text="Important Notes:"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30.0dp" />
+    <EditText
+        android:inputType="textMultiLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editImportantNotes" />
     <Button
         android:id="@+id/btnStopLogging"
         android:layout_width="fill_parent"

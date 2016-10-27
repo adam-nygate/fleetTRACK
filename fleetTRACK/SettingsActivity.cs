@@ -12,7 +12,7 @@ using Android.Widget;
 
 namespace fleetTRACK
 {
-    [Activity(Label = "SettingsActivity")]
+    [Activity(Label = "Settings")]
     public class SettingsActivity : Activity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -31,9 +31,8 @@ namespace fleetTRACK
             EditText Activity = FindViewById<EditText>(Resource.Id.entryActivity);
             EditText Location = FindViewById<EditText>(Resource.Id.entryLocation);
             EditText Company = FindViewById<EditText>(Resource.Id.entryCompany);
-            // Get save, cancel and email buttons
+            // Get save and email buttons
             Button Save = FindViewById<Button>(Resource.Id.btnSaveChanges);
-            Button Cancel = FindViewById<Button>(Resource.Id.btnCancelChanges);
             Button Email = FindViewById<Button>(Resource.Id.btnEmailMenu);
             // Set entry box values to ones from shared preferences
             AdminCode.Text = settings.GetString("AdminCode", "");
@@ -58,14 +57,12 @@ namespace fleetTRACK
                 SettingsEditor.PutString("Company", Company.Text);
                 // Commit changes
                 SettingsEditor.Commit();
-                // Go to the main menu of the app
-                StartActivity(typeof(MainActivity));
-            };
-
-            Cancel.Click += delegate
-            {
-                // Go to the main menu of the app
-                StartActivity(typeof(MainActivity));
+                // Show success dialog
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                alert.SetTitle("Success");
+                alert.SetMessage("New settings saved");
+                alert.SetPositiveButton("OK", delegate { });
+                alert.Show();
             };
 
             Email.Click += delegate

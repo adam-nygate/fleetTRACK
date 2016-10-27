@@ -63,14 +63,11 @@ namespace fleetTRACK
 			// aapt resource value: 0x7f050014
 			public const int btnAdmin = 2131034132;
 			
-			// aapt resource value: 0x7f05000b
-			public const int btnCancelChanges = 2131034123;
-			
 			// aapt resource value: 0x7f05001b
 			public const int btnEmailMenu = 2131034139;
 			
-			// aapt resource value: 0x7f050004
-			public const int btnLogin = 2131034116;
+			// aapt resource value: 0x7f050005
+			public const int btnLogin = 2131034117;
 			
 			// aapt resource value: 0x7f05000c
 			public const int btnSaveChanges = 2131034124;
@@ -81,8 +78,11 @@ namespace fleetTRACK
 			// aapt resource value: 0x7f050013
 			public const int btnStartLogging = 2131034131;
 			
+			// aapt resource value: 0x7f050003
+			public const int btnStopLogging = 2131034115;
+			
 			// aapt resource value: 0x7f050002
-			public const int btnStopLogging = 2131034114;
+			public const int editImportantNotes = 2131034114;
 			
 			// aapt resource value: 0x7f050017
 			public const int entryAccount = 2131034135;
@@ -90,8 +90,8 @@ namespace fleetTRACK
 			// aapt resource value: 0x7f050018
 			public const int entryActivity = 2131034136;
 			
-			// aapt resource value: 0x7f050003
-			public const int entryAdminCode = 2131034115;
+			// aapt resource value: 0x7f050004
+			public const int entryAdminCode = 2131034116;
 			
 			// aapt resource value: 0x7f05001a
 			public const int entryCompany = 2131034138;
@@ -114,23 +114,23 @@ namespace fleetTRACK
 			// aapt resource value: 0x7f050011
 			public const int entrySchoolArea = 2131034129;
 			
-			// aapt resource value: 0x7f050005
-			public const int entrySendAddress = 2131034117;
-			
-			// aapt resource value: 0x7f050009
-			public const int entrySmtpPassword = 2131034121;
+			// aapt resource value: 0x7f050006
+			public const int entrySendAddress = 2131034118;
 			
 			// aapt resource value: 0x7f05000a
-			public const int entrySmtpPort = 2131034122;
+			public const int entrySmtpPassword = 2131034122;
 			
-			// aapt resource value: 0x7f050007
-			public const int entrySmtpServer = 2131034119;
+			// aapt resource value: 0x7f05000b
+			public const int entrySmtpPort = 2131034123;
 			
 			// aapt resource value: 0x7f050008
-			public const int entrySmtpUsername = 2131034120;
+			public const int entrySmtpServer = 2131034120;
 			
-			// aapt resource value: 0x7f050006
-			public const int entrySourceAddress = 2131034118;
+			// aapt resource value: 0x7f050009
+			public const int entrySmtpUsername = 2131034121;
+			
+			// aapt resource value: 0x7f050007
+			public const int entrySourceAddress = 2131034119;
 			
 			// aapt resource value: 0x7f050015
 			public const int entryVehicle = 2131034133;

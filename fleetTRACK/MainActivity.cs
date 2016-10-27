@@ -7,6 +7,7 @@ using Android.Widget;
 using Android.OS;
 using Android.Locations;
 using fleetTRACK.Model;
+using System.Threading.Tasks;
 
 namespace fleetTRACK
 {
@@ -21,7 +22,7 @@ namespace fleetTRACK
 
             // Set our view to the "main" layout resource
             SetContentView(Resource.Layout.Main);
-
+            
             // Get our button from the layout resource,
             // and attach an event to it
             Button StartButton = FindViewById<Button>(Resource.Id.btnStartLogging);
@@ -66,6 +67,9 @@ namespace fleetTRACK
                     // Get our button which stops the logging
                     Button StopButton = FindViewById<Button>(Resource.Id.btnStopLogging);
 
+                    // Get our textbox which is for entering important notes
+                    EditText editImportantNotes = FindViewById<EditText>(Resource.Id.editImportantNotes);
+
                     // Displays the driver name and vehicle rego
                     TextView viewDriverName = FindViewById<TextView>(Resource.Id.viewDriverName);
                     TextView viewCarRego = FindViewById<TextView>(Resource.Id.viewCarRego);
@@ -75,12 +79,24 @@ namespace fleetTRACK
                     // When button is clicked
                     StopButton.Click += delegate
                     {
-                    // Stops the logging and writes to csv in external storage
-                    _currentJourney.Stop();
+                        // Sets the important notes for the journey with the text from our textbox
+                        _currentJourney.SetImportantNotes(editImportantNotes.Text);
+
+                        // Stops the logging and writes to csv in external storage
+                        _currentJourney.Stop();
                         _currentJourney.WriteLogFiles();
-                    // Go back to the main menu in the app
-                    StartActivity(typeof(MainActivity));
+
+                        // Go back to the main menu in the app
+                        StartActivity(typeof(MainActivity));
                     };
+                }
+                else
+                {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                    alert.SetTitle("Warning");
+                    alert.SetMessage("Must accept ToS agreement");
+                    alert.SetPositiveButton("OK", delegate { });
+                    alert.Show();
                 }
             };
         }

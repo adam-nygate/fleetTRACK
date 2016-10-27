@@ -12,7 +12,7 @@ using Android.Widget;
 
 namespace fleetTRACK
 {
-    [Activity(Label = "LoginActivity")]
+    [Activity(Label = "Login")]
     public class LoginActivity : Activity
     {
         protected override void OnCreate(Bundle savedInstanceState)

@@ -37,11 +37,13 @@ namespace fleetTRACK.Model
                 Java.IO.File.Separator,
                 _context.Resources.GetString(Resource.String.logDirectory));
 
-            foreach (string filePath in Directory.GetFiles(logPath, "*_simple.csv"))
+            foreach (string filePath in Directory.GetFiles(logPath, "*_extended.csv"))
             {
-                string rawJourneyPath = filePath.Split(new string[] { "_simple.csv" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                string rawJourneyPath = filePath.Split(new string[] { "_extended.csv" }, StringSplitOptions.RemoveEmptyEntries)[0];
                 string rawJourneyName = rawJourneyPath.Split(new string[] { Java.IO.File.Separator }, StringSplitOptions.RemoveEmptyEntries).Last();
-                string simpleJourneyDetailsFilePath = filePath;
+                string simpleJourneyDetailsFilePath = String.Format(
+                    "{0}_simple.csv",
+                    rawJourneyPath);
                 string extendedJourneyDetailsFilePath = String.Format(
                     "{0}_extended.csv",
                     rawJourneyPath);

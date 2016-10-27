@@ -103,11 +103,6 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
     <Button
-        android:id="@+id/btnCancelChanges"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Cancel" />
-    <Button
         android:id="@+id/btnSaveChanges"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
