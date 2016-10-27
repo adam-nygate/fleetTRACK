@@ -2,30 +2,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingLeft="20px"
+    android:paddingRight="20px">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
             android:text="Send Address"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20.0dp" />
         <EditText
             android:id="@+id/entrySendAddress"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content">
-      <TextView
-          android:text="Source Address"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content" />
-      <EditText
-          android:id="@+id/entrySourceAddress"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Source Address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8.0dp" />
+        <EditText
+            android:id="@+id/entrySourceAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,10 +37,11 @@
         <TextView
             android:text="SMTP Server"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24.0dp" />
         <EditText
             android:id="@+id/entrySmtpServer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
@@ -48,7 +53,7 @@
             android:layout_height="wrap_content" />
         <EditText
             android:id="@+id/entrySmtpUsername"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
@@ -60,7 +65,20 @@
             android:layout_height="wrap_content" />
         <EditText
             android:id="@+id/entrySmtpPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="SMTP Port"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="37.0dp" />
+        <EditText
+            android:id="@+id/entrySmtpPort"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
     <Button
